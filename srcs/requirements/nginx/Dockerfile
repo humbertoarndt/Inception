@@ -1,14 +1,15 @@
 # Setting OS
 FROM debian:buster
 
-# Update packages
-RUN apt update
+# Update and upgrade packages
+RUN apt update -y
+RUN apt upgrade -y
 
-# Install nginx 
+# Install NGINX
 RUN apt install nginx -y
 
 # Install vim to edit container files
-RUN apt install vim -y
+RUN apt install nano -y
 
 # Create folder to store certificate and key
 RUN mkdir -p /etc/nginx/ssl
