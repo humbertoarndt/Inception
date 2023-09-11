@@ -2,38 +2,41 @@
 FROM debian:buster
 
 # Update and upgrade packages
-RUN apt update -y
-RUN apt upgrade -y
+RUN apt-get update -y
+RUN apt-get upgrade -y
 
-# Install NGINX
-RUN apt install nginx -y
+# Install packages:
+# - nginx - required, nginx itself
+# - openssl - self-signed SSL certificates generator
+RUN apt install -y nginx openssl
 
-# Install vim to edit container files
-RUN apt install nano -y
-
-# Create folder to store certificate and key
+# Create directory to store SSL certificates
 RUN mkdir -p /etc/nginx/ssl
 
-# Install SSL Certificate tool
-RUN apt install openssl -y
+# Generatre SSL trough openssl
+# - req: command used to process certificate;
+# - -x509: option to create a X.509 certificate, a standard format for digital certificates;
+# - -nodes: option to not encrypt the private key, useful for development because won't require user input;
+# - -days 365: option to set the period of validity of the self-signed certificate;
+# - -newkey rsa:2048: option to set the type of the key, in this case, a RSA key with 2048 bits;
+# - -keyout: option to set the path where the key will be stored;
+# - -out: otpion to set the path where the certificate will be stored;
+# - -subj: option to set the certificate's subject specifications, such as:
+#   - C: specify country;
+#   - ST: specify state;
+#   - L: specify locale;
+#   - O: specify organization;
+#   - CN: specify commom name, A.K.A. domain name.
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/nginx/ssl/harndt.key                   \
+    -out /etc/nginx/ssl/harndt.crt                      \
+    -subj "/C=BR/ST=SP/L=Sao Paulo/O=42SP/CN=harndt.42.fr/"
 
-# Create a SSL Certificate
-## 'req' Requests a certificate in PKCS#10 format
-## '-x509' Certificate type
-## '-nodes' Create key without password
-## '-out' Indicates where to save the certificate
-## '-keyout' Indicates where to save the key
-## '-subj' Certificate information
-RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key \
-    -subj "/C=BR/ST=SP/L=Sao Paulo/O=Ecole 42/OU=42/CN=harndt.42.fr/UID=harndt"
+# Copy the nginx configuration file to nginx's default configuration directory
+COPY ./conf/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create folder to store NGINX files and copy nginx.conf file
-RUN mkdir -p /var/run/nginx
-COPY conf/nginx.conf etc/nginx/nginx.conf
+# Expose port 443 for communication between containers
+EXPOSE 443
 
-# Define privileges
-RUN chmod 755 /var/www/html
-run chown -R www-data:www-data /var/www/html
-
-# Launch NGINX in the background
+# Run nginx without daemon, m
 CMD ["nginx", "-g", "daemon off;"]
