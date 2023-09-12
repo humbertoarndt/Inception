@@ -1,14 +1,13 @@
 # Setting OS
 FROM debian:buster
 
-# Update and upgrade packages
+# Update packages
 RUN apt-get update -y
-RUN apt-get upgrade -y
 
 # Install packages:
-# - nginx - required, nginx itself
+# - nginx - web server
 # - openssl - self-signed SSL certificates generator
-RUN apt install -y nginx openssl
+RUN apt-get install -y nginx openssl
 
 # Create directory to store SSL certificates
 RUN mkdir -p /etc/nginx/ssl

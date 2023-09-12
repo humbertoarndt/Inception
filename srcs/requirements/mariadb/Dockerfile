@@ -1,9 +1,8 @@
 # Setting OS
 FROM debian:buster
 
-# Update and upgrade packages
-RUN apt update -y
-RUN apt upgrade -y
+# Update packages
+RUN apt-get update -y
 
 # Install packages:
 # - mariadb-* - required, mariadb itself

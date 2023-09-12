@@ -1,68 +1,46 @@
-# # Setting OS
-# FROM debian:buster
-
-# # Update and upgrade packages
-# RUN apt update -y
-# RUN apt upgrade -y
-
-# # Install WGET, PHP and its dependencies, MariaDB Client
-# RUN apt-get install -y \
-#     wget \
-#     php7.3 \
-#     php-fpm \
-#     php-mysql \
-#     mariadb-client \
-#     nano
-
-# # Install WordPress
-# RUN wget https://fr.wordpress.org/wordpress-6.0-fr_FR.tar.gz -P /var/www
-
-# # De-tar WordPress and remove '.tar'
-# RUN cd /var/www && tar -xzf wordpress-6.0-fr_FR.tar.gz && rm wordpress-6.0-fr_FR.tar.gz
-
-# # Grant root privilege
-# RUN chown -R root:root /var/www/wordpress
-
-# # Copy '50-server-cnf' file
-# # COPY conf/wp-setting.php /var/www/wordpress/wp-setting.php
-
-################################
+# Setting OS
 FROM debian:buster
 
-RUN apt update && apt install -y \
-	php7.3-fpm\
-	php7.3-mysqli \
-	mariadb-client \
-	wget \
-	curl \
-	unzip
+# Setting the working directory to /var/www/html, whic is WordPress' default
+WORKDIR /var/www/html
 
-# Dowload wp cli para realizar comandos wordpress via linha de comando
-RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x wp-cli.phar && mv wp-cli.phar /bin/wp && wp cli update
+# Update  packages
+RUN apt-get update -y
 
-# Criando a pasta do wordpress
-RUN mkdir -p var/www/html/wordpress
+# Install packages:
+# - php*: PHP to run WordPress
+# - wget: retrieve content from web servers
+# - tar: file copressor
+# - php-redis:
+RUN apt-get install -y php-fpm php-mysql wget tar
 
-# Mudando as permissoes, users e grupos
-RUN chown -R www-data:www-data /var/www/html/
-RUN chmod -R 755 /var/www/html/
+# Create necessary directories
+# - /run/php: used by php-form to run the PHP service
+RUN mkdir -p /run/php
 
-# Dowload do wordpress pelo wp cli.
-RUN wp core download --allow-root --path=/var/www/html/wordpress
+# Install wp-cli:
+# - Commando Line Interface to manage WordPress installation
+# - Allows operation such as update plugins and themes, manage user, perfmor backups, etc
+RUN https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+	mc wp-cli.phar /usr/local/bin/wp && \
+	chmod +x /usr/local/bin/wp
 
-# Colocando o PHP-FPM pra rodar na porta 9000
-RUN sed -i 's/listen = \/run\/php\/php7.3-fpm.sock/listen = 0.0.0.0:9000/' /etc/php/7.3/fpm/pool.d/www.conf
+# Alter PHP configuration file to listen on port 9000
+RUN echo "\nlisten = 0.0.0.0:9000" >> /etc/php/7.3/fpm/pool.d/www.conf
 
-# Criando o diretorio aonde vai rodar o PHP-FPM
-RUN mkdir -p /run/php && chmod 755 /var/run/php
+# Copy setup script to local bin directory
+COPY ./tools/setup.sh /usr/local/bin
 
-#copiando o script que vai criar a base de dados e users.
-COPY tools/wp-config.php /var/www/html/wordpress
-# COPY tools/wpconfig.sh ./script.sh
+# Making the setup script an executable
+RUN chmod +x /usr/local/bin/setup.sh
 
-# Alterando as permissoes pata o docker conseguir executar
-# RUN chmod 755 script.sh
-
-# expondo a porta e chamando o script
+# Expose port 9000 for communication between containers
 EXPOSE 9000
-# CMD ["bash", "./script.sh"]
+
+# Setting setup script as entrypoint
+ENTRYPOINT ["setup.sh"]
+
+# Run php-fpm with -F option*
+CMD ["php-fpm7.3", "-F"]
+
+# *-F: makes php-fpm7.3 run in the background so log messages will show
