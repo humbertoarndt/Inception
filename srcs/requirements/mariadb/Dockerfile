@@ -5,13 +5,36 @@ FROM debian:buster
 RUN apt update -y
 RUN apt upgrade -y
 
-# Install MariaDB
-RUN apt-get install mariadb-server -y
+# Install packages:
+# - mariadb-* - required, mariadb itself
+RUN apt-get install -y mariadb-server mariadb-client
 
-# Install vim to edit container files
-RUN apt install nano -y
+# Create necessary directory
+# - /var/un/mysqld: is needed by MySQL daemon to run
+# Grant permissions to be accessible by MySQL
+RUN mkdir -p /var/un/mysqld && \
+    chown -R mysql:mysql /var/run/mysqld && \
+    chmod 777 /var/run/mysqld
 
-# Copy '50-server-cnf' file
-COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+# Copy setup script to /local/bin directory
+COPY ./tools/setup.sh /usr/local/bin
 
-ENTRYPOINT ["/run.sh"]
+# Grant permission to execute setup script
+# - +x: makes it executable
+RUN chmod +x /usr/local/bin/setup.sh
+
+# Copy databse dump file into a temporary directory
+COPY ./conf/dump.sql /temp
+
+# Expose port 3306 for communication between containers
+EXPOSE 3306
+
+# Set entrypoint to be the setup script
+ENTRYPOINT ["setup.sh"]
+
+# Run MySQL daemon using addres 0.0.0.0*
+CMD ["mysql", "--bind-address=0.0.0.0"]
+
+# *The --bind-address option specifies the IP address to which the server should bind to. 
+# Setting it to 0.0.0.0 means that the server will listen on all available network interfaces, 
+# which is useful for exposing the MySQL server to other containers.
