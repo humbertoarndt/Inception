@@ -22,7 +22,7 @@ RUN mkdir -p /run/php
 # - Commando Line Interface to manage WordPress installation
 # - Allows operation such as update plugins and themes, manage user, perfmor backups, etc
 RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-	mc wp-cli.phar /usr/local/bin/wp && \
+	mv wp-cli.phar /usr/local/bin/wp && \
 	chmod +x /usr/local/bin/wp
 
 # Alter PHP configuration file to listen on port 9000
