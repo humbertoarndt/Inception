@@ -21,7 +21,7 @@ RUN mkdir -p /run/php
 # Install wp-cli:
 # - Commando Line Interface to manage WordPress installation
 # - Allows operation such as update plugins and themes, manage user, perfmor backups, etc
-RUN https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 	mc wp-cli.phar /usr/local/bin/wp && \
 	chmod +x /usr/local/bin/wp
 
