@@ -20,7 +20,7 @@ services:
       - inception
 
   wordpress:
-    container-name: wordpress
+    container_name: wordpress
     image: wordpress
     build:
       context: ./requirements/wordpress
