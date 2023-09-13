@@ -46,7 +46,7 @@ services:
     volumes:
       - wordpress-database:/var/lib/mysql
     restart: always
-    nwtworks:
+    networks:
       - inception
 
 
