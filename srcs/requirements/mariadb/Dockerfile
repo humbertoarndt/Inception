@@ -11,7 +11,7 @@ RUN apt-get install -y mariadb-server mariadb-client
 # Create necessary directory
 # - /var/un/mysqld: is needed by MySQL daemon to run
 # Grant permissions to be accessible by MySQL
-RUN mkdir -p /var/un/mysqld && \
+RUN mkdir -p /var/run/mysqld && \
     chown -R mysql:mysql /var/run/mysqld && \
     chmod 777 /var/run/mysqld
 
