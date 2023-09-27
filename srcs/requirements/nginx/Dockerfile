@@ -32,9 +32,6 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 # Copy the nginx configuration file to nginx's default configuration directory
 COPY ./conf/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the static website HTML file to the share folder of the container
-COPY ./conf/index.html /usr/share/nginx/html/index.html
-
 # Expose port 443 for communication with the web and other containers
 EXPOSE 443
 
