@@ -1,20 +1,18 @@
-# Setting OS
 FROM debian:buster
 
-# Update packages
-RUN apt-get update -y
-
 # Install packages:
-# - nginx - web server
-# - openssl - self-signed SSL certificates generator
-RUN apt-get install -y nginx openssl
+# - nginx - required, nginx itself
+# - openssl - used to create self-signed SSL certificates
+RUN apt-get update && \
+    apt-get install -y nginx openssl
 
-# Create directory to store SSL certificates
+# Create necessary directories:
+# - /etc/nginx/ssl: directory where the certificates will be stored on
 RUN mkdir -p /etc/nginx/ssl
 
-# Generatre SSL trough openssl
+# Generate the self-signed SSL certificates using openssl:
 # - req: command used to process certificate;
-# - -x509: option to create a X.509 certificate, a standard format for digital certificates;
+# - -x509: option to create a X.509 certificate, which is a standard format for digital certificates;
 # - -nodes: option to not encrypt the private key, useful for development because won't require user input;
 # - -days 365: option to set the period of validity of the self-signed certificate;
 # - -newkey rsa:2048: option to set the type of the key, in this case, a RSA key with 2048 bits;
@@ -27,15 +25,21 @@ RUN mkdir -p /etc/nginx/ssl
 #   - O: specify organization;
 #   - CN: specify commom name, A.K.A. domain name.
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout /etc/nginx/ssl/harndt.key                   \
-    -out /etc/nginx/ssl/harndt.crt                      \
-    -subj "/C=BR/ST=SP/L=Sao Paulo/O=42SP/CN=harndt.42.fr/"
+    -keyout /etc/nginx/ssl/nginx.key \
+    -out /etc/nginx/ssl/nginx.crt \
+    -subj "/C=BR/ST=SP/L=Indaiatuba/O=42SP/CN=harndt.42.fr"
 
 # Copy the nginx configuration file to nginx's default configuration directory
 COPY ./conf/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 443 for communication between containers
+# Copy the static website HTML file to the share folder of the container
+COPY ./conf/index.html /usr/share/nginx/html/index.html
+
+# Expose port 443 for communication with the web and other containers
 EXPOSE 443
 
-# Run nginx without daemon, m
+# Run nginx without daemon*
 CMD ["nginx", "-g", "daemon off;"]
+
+# *The `daemon off` option is used to prevent nginx from running in the background as a daemon.
+# Instead, it runs in the foreground and logs messages to the standard output and error streams normally.

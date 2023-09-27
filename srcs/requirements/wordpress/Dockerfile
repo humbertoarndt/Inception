@@ -1,46 +1,45 @@
-# Setting OS
 FROM debian:buster
 
-# Setting the working directory to /var/www/html, whic is WordPress' default
+# Set the working directory to /var/www/html, which is WordPress' default
 WORKDIR /var/www/html
 
-# Update  packages
-RUN apt-get update -y
-
 # Install packages:
-# - php*: PHP to run WordPress
-# - wget: retrieve content from web servers
-# - tar: file copressor
-# - php-redis:
-RUN apt-get install -y php-fpm php-mysql wget tar
+# - php-* - used to run WordPress
+# - wget - used to install wp-cli
+# - tar - used to unpack wp-cli's tarball
+# - php-redis - used specifically for redis bonus service
+RUN apt-get update && \
+    apt-get install -y php-fpm php-mysql php-redis wget tar
 
-# Create necessary directories
-# - /run/php: used by php-form to run the PHP service
+# Create necessary directories:
+# - /run/php: used by php-fpm to run the PHP service
 RUN mkdir -p /run/php
 
 # Install wp-cli:
-# - Commando Line Interface to manage WordPress installation
-# - Allows operation such as update plugins and themes, manage user, perfmor backups, etc
+# - This tool is a command-line interface for managing WordPress installations;
+# - It allows operations such as updating plugins and themes, managing users,
+#   performing backups, etc.
 RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-	mv wp-cli.phar /usr/local/bin/wp && \
-	chmod +x /usr/local/bin/wp
+    mv wp-cli.phar /usr/local/bin/wp && \
+    chmod +x /usr/local/bin/wp
 
-# Alter PHP configuration file to listen on port 9000
+# Alter PHP configuration file so it listens on port 9000
 RUN echo "\nlisten = 0.0.0.0:9000" >> /etc/php/7.3/fpm/pool.d/www.conf
 
 # Copy setup script to local bin directory
 COPY ./tools/setup.sh /usr/local/bin
 
-# Making the setup script an executable
+# Change setup script permissions so it becomes executable
 RUN chmod +x /usr/local/bin/setup.sh
 
-# Expose port 9000 for communication between containers
+# Expose port 9000 for communication with other containers
 EXPOSE 9000
 
-# Setting setup script as entrypoint
+# Set entrypoint to be setup script
 ENTRYPOINT ["setup.sh"]
 
 # Run php-fpm with -F option*
 CMD ["php-fpm7.3", "-F"]
 
-# *-F: makes php-fpm7.3 run in the background so log messages will show
+# *The -F option tells php-fpm7.3 to run in the foreground,
+# which means that it will log messages to the standard output and error streams normally.

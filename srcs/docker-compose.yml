@@ -1,9 +1,5 @@
 version: '3'
 
-# Project name (Used as prefix for container)
-# name: inception
-
-# Services to run (Containers)
 services:
   nginx:
     container_name: nginx
@@ -51,13 +47,6 @@ services:
     networks:
       - inception
 
-
-# Create the network (bridge by default)
-networks:
-  inception:
-    driver: bridge
-
-# Create volumes (VOLUMES_PATH exported by Makefile)
 volumes:
   wordpress-files:
     driver: local
@@ -71,3 +60,7 @@ volumes:
       o: bind
       type: none
       device: ${VOLUME_PATH}/mariadb
+
+networks:
+  inception:
+    driver: bridge
