@@ -10,7 +10,7 @@ WORKDIR /var/www/html
 # - tar - used to unpack wp-cli's tarball
 # - php-redis - used specifically for redis bonus service
 RUN apt-get update && \
-    apt-get install -y php-fpm php-mysql php-redis wget tar
+    apt-get install -y php-fpm php-mysql wget tar
 
 # Create necessary directories:
 # - /run/php: used by php-fpm to run the PHP service
