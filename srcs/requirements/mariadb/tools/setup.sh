@@ -10,7 +10,7 @@ if [ ! -d "/var/lib/mysql/$DB_NAME" ]; then
     # Initializes the MariaDB data directory and creates the system tables that it contains.
     # This step is necessary for the creation and setup of /var/lib/mysql,
     # a directory that the MySQL dameon will need to access later on.
-    mysql_install_db
+    mysql_upgrade #mysql_install_db
 
     # Initializes MySQL dameon
     /etc/init.d/mysql start

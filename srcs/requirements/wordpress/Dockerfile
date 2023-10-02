@@ -25,7 +25,7 @@ RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.ph
     chmod +x /usr/local/bin/wp
 
 # Alter PHP configuration file so it listens on port 9000
-RUN echo "\nlisten = 0.0.0.0:9000" >> /etc/php/7.3/fpm/pool.d/www.conf
+RUN echo "\nlisten = 0.0.0.0:9000" >> /etc/php/7.4/fpm/pool.d/www.conf
 
 # Copy setup script to local bin directory
 COPY ./tools/setup.sh /usr/local/bin
@@ -40,7 +40,7 @@ EXPOSE 9000
 ENTRYPOINT ["setup.sh"]
 
 # Run php-fpm with -F option*
-CMD ["php-fpm7.3", "-F"]
+CMD ["php-fpm7.4", "-F"]
 
 # *The -F option tells php-fpm7.3 to run in the foreground,
 # which means that it will log messages to the standard output and error streams normally.
