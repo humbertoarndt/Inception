@@ -1,4 +1,5 @@
-FROM debian:buster
+# Setting current penultimate stable version from Debian
+FROM debian:bullseye
 
 # Install packages:
 # - nginx - required, nginx itself

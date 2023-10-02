@@ -1,4 +1,5 @@
-FROM debian:buster
+# Setting current penultimate stable version from Debian
+FROM debian:bullseye
 
 # Set the working directory to /var/www/html, which is WordPress' default
 WORKDIR /var/www/html
