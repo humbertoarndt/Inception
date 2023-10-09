@@ -42,5 +42,5 @@ ENTRYPOINT ["setup.sh"]
 # Run php-fpm with -F option*
 CMD ["php-fpm7.4", "-F"]
 
-# *The -F option tells php-fpm7.3 to run in the foreground,
+# *The -F option tells php-fpm7.4 to run in the foreground,
 # which means that it will log messages to the standard output and error streams normally.

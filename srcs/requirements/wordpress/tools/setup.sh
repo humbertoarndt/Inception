@@ -28,5 +28,5 @@ fi
 
 # Execute any commands given to the container
 # Defaults to command present in Dockerfile:
-# php-fpm7.3 -F
+# php-fpm7.4 -F
 exec "$@"

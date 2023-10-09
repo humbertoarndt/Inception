@@ -13,6 +13,11 @@ RUN mkdir -p /var/run/mysqld && \
     chown -R mysql:mysql /var/run/mysqld && \
     chmod 777 /var/run/mysqld
 
+RUN touch /var/run/mysqld/mysqld.sock /var/run/mysqld/mysqld.pid && \
+    chown -R mysql:mysql /var/run/mysqld/mysqld.sock && \
+    chown -R mysql:mysql /var/run/mysqld/mysqld.sock && \
+    chmod -R 644 /var/run/mysqld/mysqld.sock
+
 # Copy setup script to local bin directory
 COPY ./tools/setup.sh /usr/local/bin
 
@@ -21,6 +26,8 @@ RUN chmod +x /usr/local/bin/setup.sh
 
 # Copy database dump file to temporary directory, since it will only be used once
 COPY ./conf/dump.sql /tmp
+
+RUN service mariadb start
 
 # Expose port 3306 for communication with other containers
 EXPOSE 3306
