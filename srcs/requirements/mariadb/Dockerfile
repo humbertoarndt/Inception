@@ -1,6 +1,12 @@
 # Setting current penultimate stable version from Debian
 FROM debian:bullseye
 
+ARG DB_ROOT_USER
+ARG DB_ROOT_PASS
+ARG DB_NAME
+ARG DB_USER_USER
+ARG DB_USER_PASS
+
 # Install packages:
 # - mariadb-* - required, mariadb itself
 RUN apt-get update && \
@@ -27,17 +33,18 @@ RUN chmod +x /usr/local/bin/setup.sh
 # Copy database dump file to temporary directory, since it will only be used once
 COPY ./conf/dump.sql /tmp
 
-RUN service mariadb start
+#RUN service mariadb start
 
 # Expose port 3306 for communication with other containers
 EXPOSE 3306
 
+COPY ./conf/my.cnf /etc/mysql/my.cnf
+
 # Set entrypoint to be setup script
-ENTRYPOINT ["setup.sh"]
+RUN ./usr/local/bin/setup.sh
 
 # Run MySQL daemon with address binding to 0.0.0.0*
-CMD ["mysqld", "--bind-address=0.0.0.0"]
-
+CMD ["mysqld_safe"]
 # *The --bind-address option specifies the IP address to which the server should bind to. 
 # Setting it to 0.0.0.0 means that the server will listen on all available network interfaces, 
 # which is useful for exposing the MySQL server to other containers.
